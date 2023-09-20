@@ -4,7 +4,7 @@ import getpass
 def write_key(password):
     key = Fernet.generate_key()
     key_with_password = key + password.encode()  
-
+    # Save the key in the ke.key file
     with open("key.key", "wb") as key_file:
         key_file.write(key_with_password)
 
@@ -29,6 +29,7 @@ def view(fer):
             print("User:", user, "| Password:", fer.decrypt(passwd.encode()).decode())
 
 def main():
+    # Write user password
     password = getpass.getpass("Enter your password: ")
 
     try:
@@ -38,6 +39,7 @@ def main():
         write_key(password) 
         key = load_key(password)
 
+    # Create Fernet object with key
     fer = Fernet(key)
 
     while True:
