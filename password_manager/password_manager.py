@@ -1,10 +1,10 @@
+import os
 from cryptography.fernet import Fernet
 import getpass
 
 def write_key(password):
     key = Fernet.generate_key()
-    key_with_password = key + password.encode()  
-    # Save the key in the ke.key file
+    key_with_password = key + password.encode()
     with open("key.key", "wb") as key_file:
         key_file.write(key_with_password)
 
@@ -29,17 +29,28 @@ def view(fer):
             print("User:", user, "| Password:", fer.decrypt(passwd.encode()).decode())
 
 def main():
-    # Write user password
-    password = getpass.getpass("Enter your password: ")
+    if os.path.exists("user_password.txt"):
+        with open("user_password.txt", "r") as user_pass_file:
+            stored_user_password = user_pass_file.read().strip()
+    else:
+        stored_user_password = getpass.getpass("Set your user password: ")
+        with open("user_password.txt", "w") as user_pass_file:
+            user_pass_file.write(stored_user_password)
+
+    while True:
+        user_password_attempt = getpass.getpass("Enter your user password: ")
+        if user_password_attempt == stored_user_password:
+            break
+        else:
+            print("Incorrect user password. Try again.")
 
     try:
-        key = load_key(password)
+        key = load_key(stored_user_password)
     except FileNotFoundError:
         print("Key not found. Generating a new key.")
-        write_key(password) 
-        key = load_key(password)
+        write_key(stored_user_password)
+        key = load_key(stored_user_password)
 
-    # Create Fernet object with key
     fer = Fernet(key)
 
     while True:
