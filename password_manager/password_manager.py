@@ -1,50 +1,56 @@
 from cryptography.fernet import Fernet
+import getpass
 
-'''
-
-# Use this only once
-
-def write_key():
+def write_key(password):
     key = Fernet.generate_key()
+    key_with_password = key + password.encode()  
+
     with open("key.key", "wb") as key_file:
-        key_file.write(key)
+        key_file.write(key_with_password)
 
-'''
-
-def load_key():
-    file = open("key.key", "rb")
-    key = file.read()
-    file.close()
+def load_key(password):
+    with open("key.key", "rb") as key_file:
+        key_with_password = key_file.read()
+    key = key_with_password[:-len(password.encode())]
     return key
 
-admin_pwd = input("What is your word to encrypt ? ") 
-
-key = load_key() + admin_pwd.encode()
-fer = Fernet(key)
-
-
-def add():
+def add(fer):
     name = input("Username: ")
-    password = input("Password: ")
+    password = getpass.getpass("Password: ")
 
     with open('passwords.txt', 'a') as file:
         file.write(name + "|" + fer.encrypt(password.encode()).decode() + "\n")
-     
-def view():
+
+def view(fer):
     with open('passwords.txt', 'r') as file:
         for line in file.readlines():
             data = line.rstrip()
             user, passwd = data.split("|")
-            print("User :", user, "| Password :", fer.decrypt(passwd.encode()).decode())
-   
-while True :
-    mode = input ("Woudl you like to add a password or view the existing ones (add, view) ? Press q to quit. ").lower()
-    if mode == "q":
-        break    
-    elif mode == "add":
-        add()
-    elif mode == "view":
-        view()
-    else:
-        print("Invalid option")
-        continue
+            print("User:", user, "| Password:", fer.decrypt(passwd.encode()).decode())
+
+def main():
+    password = getpass.getpass("Enter your password: ")
+
+    try:
+        key = load_key(password)
+    except FileNotFoundError:
+        print("Key not found. Generating a new key.")
+        write_key(password) 
+        key = load_key(password)
+
+    fer = Fernet(key)
+
+    while True:
+        mode = input("Would you like to add a password or view the existing ones (add, view)? Press q to quit. ").lower()
+        if mode == "q":
+            break
+        elif mode == "add":
+            add(fer)
+        elif mode == "view":
+            view(fer)
+        else:
+            print("Invalid option")
+            continue
+
+if __name__ == "__main__":
+    main()

@@ -18,18 +18,6 @@ pip install cryptography
 python3 ./password_manager.py
 ```
 
-## Warnings
-For the encryption to work, you have to uncomment this part, launch the project and comment it again.
-
-```python
-# Use this only once
-
-def write_key():
-    key = Fernet.generate_key()
-    with open("key.key", "wb") as key_file:
-        key_file.write(key)
-```
-
 ## Documentation
 
 https://cryptography.io/en/latest/
