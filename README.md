@@ -1,4 +1,4 @@
-# Password Manager - Beginner
+# Password Manager
 
 --> Tutorial followed : 5 Mini Python Projects - For Beginners [Tech with Tim]
 
